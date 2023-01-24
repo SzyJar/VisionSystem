@@ -1,4 +1,3 @@
-import tkinter as tk
 import cv2 as cv
 import numpy as np
 
@@ -20,13 +19,13 @@ def detection(val):
         (x,y),radius = cv.minEnclosingCircle(cnt)
         center = (int(x),int(y))
         if(int(radius) > 1 and int(radius) < 80):
-            #draw the rectangle
+            # Draw rectangle
             startPoint = (int(center[0] - radius +offset), int(center[1] - radius +offset))
             endPoint = (int(center[0] + radius +offset)), int(center[1] + radius +offset)
             resultImg = cv.rectangle(resultImg, startPoint, endPoint, (0, 255, 0), 1)
             cv.putText(img = resultImg, text = f"{center[0]}, {center[1]}",
                          org = (center[0] + offset, center[1] + offset), fontFace = cv.FONT_HERSHEY_TRIPLEX,
-                        fontScale = 0.5, color = (0, 255, 0), thickness = 1)
+                        fontScale = 1, color = (0, 255, 0), thickness = 1)
 
     # Show in a window
     cv.imshow("Source frame", frame)
@@ -35,12 +34,13 @@ def detection(val):
 
 
 webcam = cv.VideoCapture(0)
-offset = 150
+offset = 160
+
 while True:
     ok,frame = webcam.read()
 
     if ok == True:
-        src_gray = cv.cvtColor(frame[offset:, offset:], cv.COLOR_BGR2GRAY)
+        src_gray = cv.cvtColor(frame[offset:-100, offset:-100], cv.COLOR_BGR2GRAY)
         src_gray = cv.blur(src_gray, (3,3))
 
         thresh = 220 # initial threshold
