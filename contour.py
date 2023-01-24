@@ -21,10 +21,11 @@ def detection(val):
         center = (int(x),int(y))
         if(int(radius) > 1 and int(radius) < 80):
             #draw the rectangle
-            startPoint = (int(center[0] - radius), int(center[1] - radius))
-            endPoint = (int(center[0] + radius), int(center[1] + radius))
+            startPoint = (int(center[0] - radius +offset), int(center[1] - radius +offset))
+            endPoint = (int(center[0] + radius +offset)), int(center[1] + radius +offset)
             resultImg = cv.rectangle(resultImg, startPoint, endPoint, (0, 255, 0), 1)
-            cv.putText(img = resultImg, text = f"{center[0]}, {center[1]}", org = center, fontFace = cv.FONT_HERSHEY_TRIPLEX,
+            cv.putText(img = resultImg, text = f"{center[0]}, {center[1]}",
+                         org = (center[0] + offset, center[1] + offset), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                         fontScale = 0.5, color = (0, 255, 0), thickness = 1)
 
     # Show in a window
@@ -34,15 +35,15 @@ def detection(val):
 
 
 webcam = cv.VideoCapture(0)
-
+offset = 150
 while True:
     ok,frame = webcam.read()
 
     if ok == True:
-        src_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        src_gray = cv.cvtColor(frame[offset:, offset:], cv.COLOR_BGR2GRAY)
         src_gray = cv.blur(src_gray, (3,3))
 
-        thresh = 250 # initial threshold
+        thresh = 220 # initial threshold
         detection(thresh)
 
         key = cv.waitKey(1)
