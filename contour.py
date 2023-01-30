@@ -34,7 +34,7 @@ def detection(val):
 
 
 webcam = cv.VideoCapture(0)
-offset = 160
+offset = 0
 
 while True:
     ok,frame = webcam.read()
@@ -43,7 +43,7 @@ while True:
         src_gray = cv.cvtColor(frame[offset:-100, offset:-100], cv.COLOR_BGR2GRAY)
         src_gray = cv.blur(src_gray, (3,3))
 
-        thresh = 220 # initial threshold
+        thresh = 20 # initial threshold
         detection(thresh)
 
         key = cv.waitKey(1)
