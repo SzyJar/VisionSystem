@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 
 
 def detection():
-    img1 = cv.imread('box.png',cv.IMREAD_GRAYSCALE)          # queryImage
-    img2 = cv.imread('box_in_scene.png',cv.IMREAD_GRAYSCALE) # trainImage
+    img2 = cv.cvtColor(frame,cv.IMREAD_GRAYSCALE)          # queryImage
+    img1 = cv.imread('item.jpg',cv.IMREAD_GRAYSCALE) # trainImage
     # Initiate SIFT detector
     sift = cv.SIFT_create()
     # find the keypoints and descriptors with SIFT
@@ -30,8 +30,6 @@ while True:
     ok,frame = webcam.read()
 
     if ok == True:
-        src_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-        src_gray = cv.blur(src_gray, (3,3))
 
         detection()
 
