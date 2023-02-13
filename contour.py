@@ -2,15 +2,16 @@ import cv2 as cv
 import numpy as np
 
 
-def detection(val):
-    threshold = val
+def detection(tresh1, tresh2):
     resultImg = (frame).copy()
     # Detect edges using Canny
-    canny_output = cv.Canny(src_gray, threshold, threshold * 2)
+    canny_output = cv.Canny(src_gray, tresh1, tresh2)
+    kernel = np.ones((5,5))
+    imgDil = cv.dilate(canny_output, kernel, iterations = 2)
     # Find contours
-    contours, hierarchy = cv.findContours(canny_output, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv.findContours(imgDil, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     # Draw contours
-    drawing = np.zeros((canny_output.shape[0], canny_output.shape[1], 3), dtype=np.uint8)
+    drawing = np.zeros((imgDil.shape[0], imgDil.shape[1], 3), dtype=np.uint8)
     for i in range(len(contours)):
         color = (255, 255, 255)
         cv.drawContours(drawing, contours, i, color, 1, cv.LINE_8, hierarchy, 0)
@@ -20,11 +21,11 @@ def detection(val):
         center = (int(x),int(y))
         if(int(radius) > 1 and int(radius) < 80):
             # Draw rectangle
-            startPoint = (int(center[0] - radius +offset), int(center[1] - radius +offset))
-            endPoint = (int(center[0] + radius +offset)), int(center[1] + radius +offset)
+            startPoint = (int(center[0] - radius), int(center[1] - radius))
+            endPoint = (int(center[0] + radius)), int(center[1] + radius)
             resultImg = cv.rectangle(resultImg, startPoint, endPoint, (0, 255, 0), 1)
-            cv.putText(img = resultImg, text = f"{center[0]}, {center[1]}",
-                         org = (center[0] + offset, center[1] + offset), fontFace = cv.FONT_HERSHEY_TRIPLEX,
+            cv.putText(img = resultImg, text = "",#f"{center[0]}, {center[1]}",
+                         org = (center[0], center[1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                         fontScale = 1, color = (0, 255, 0), thickness = 1)
 
     # Show in a window
@@ -32,19 +33,28 @@ def detection(val):
     cv.imshow("Contour detection", drawing)
     cv.imshow("Object detection", resultImg)
 
+def empty(a):
+    pass
+
+cv.namedWindow("Params")
+cv.resizeWindow("Params", 640, 240)
+cv.createTrackbar("thresh1", "Params", 150, 255, empty)
+cv.createTrackbar("thresh2", "Params", 150, 500, empty)
 
 webcam = cv.VideoCapture(0)
-offset = 160
 
 while True:
     ok,frame = webcam.read()
 
     if ok == True:
-        src_gray = cv.cvtColor(frame[offset:-100, offset:-100], cv.COLOR_BGR2GRAY)
+        frameBlur = cv.GaussianBlur(frame, (7,7), 1)
+        src_gray = cv.cvtColor(frameBlur, cv.COLOR_BGR2GRAY)
         src_gray = cv.blur(src_gray, (3,3))
 
-        thresh = 220 # initial threshold
-        detection(thresh)
+        tresh1 = cv.getTrackbarPos("thresh1", "Params")
+        tresh2 = cv.getTrackbarPos("thresh1", "Params")
+        
+        detection(tresh1, tresh2)
 
         key = cv.waitKey(1)
         if key == ord("q"):
