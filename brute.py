@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 def detection():
-    img2 = cv.cvtColor(frame,cv.IMREAD_GRAYSCALE)          # queryImage
+    img2 = cv.cvtColor(frame,cv.IMREAD_GRAYSCALE) # queryImage
     img1 = cv.imread('item.jpg',cv.IMREAD_GRAYSCALE) # trainImage
     # Initiate SIFT detector
     sift = cv.SIFT_create()
@@ -26,16 +26,10 @@ def detection():
 
 webcam = cv.VideoCapture(0)
 
-while True:
-    ok,frame = webcam.read()
+ok,frame = webcam.read()
 
-    if ok == True:
-
-        detection()
-
-        key = cv.waitKey(1)
-        if key == ord("q"):
-            break
+if ok == True:
+    detection()
 
 webcam.release()
 cv.destroyAllWindows
