@@ -31,11 +31,11 @@ def detection(tresh1, tresh2):
         skip = 0
         x, y, w, h = objects[obj]
         for i in range(len(objects)):
-            if x > objects[i][0] and (x + w) < (objects[i][0] + objects[i][3]):
+            if x > objects[i][0] and (x + h) < (objects[i][0] + objects[i][2]):
                 skip = 1
         if skip == 0:
             cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 255, 0), 1)
-            detectedObjects.append([x, y, w, h])
+            detectedObjects.append(frame[y:(y + h), x:(x + w)])
 
 
     """
@@ -60,6 +60,11 @@ def detection(tresh1, tresh2):
     cv.imshow("Source frame", frame)
     cv.imshow("Contour detection", drawing)
     cv.imshow("Object detection", resultImg)
+    try:
+        cv.imshow("object", detectedObjects[cv.getTrackbarPos("item", "Params")])
+    except:
+        cv.destroyWindow("object")
+
 
 def empty(a):
     pass
@@ -67,9 +72,10 @@ def empty(a):
 cv.namedWindow("Params")
 cv.resizeWindow("Params", 640, 240)
 cv.createTrackbar("thresh1", "Params", 75, 255, empty)
-cv.createTrackbar("thresh2", "Params", 100, 500, empty)
+cv.createTrackbar("thresh2", "Params", 90, 500, empty)
 cv.createTrackbar("AreaMin", "Params", 311, 30000, empty)
 cv.createTrackbar("AreaMax", "Params", 5000, 30000, empty)
+cv.createTrackbar("item", "Params", 1, 10, empty)
 
 webcam = cv.VideoCapture(0)
 
@@ -82,7 +88,7 @@ while True:
         #src_gray = cv.blur(src_gray, (3,3))
 
         tresh1 = cv.getTrackbarPos("thresh1", "Params")
-        tresh2 = cv.getTrackbarPos("thresh1", "Params")
+        tresh2 = cv.getTrackbarPos("thresh2", "Params")
         
         detection(tresh1, tresh2)
 
