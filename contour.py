@@ -7,12 +7,13 @@ def detection(tresh1, tresh2):
     # Detect edges using Canny
     canny_output = cv.Canny(src_gray, tresh1, tresh2)
     kernel = np.ones((5,5))
-    imgDil = cv.dilate(canny_output, kernel, iterations = 1)
+    imgDil = cv.dilate(canny_output, kernel, iterations = 2)
     # Find contours
     contours, hierarchy = cv.findContours(imgDil, cv.RETR_TREE, cv.CHAIN_APPROX_NONE)
     # Draw contours
     drawing = np.zeros((imgDil.shape[0], imgDil.shape[1], 3), dtype=np.uint8)
-
+    objects = []
+    detectedObjects = []
     for cnt in contours:
         area = cv.contourArea(cnt)
         areaMin = cv.getTrackbarPos("AreaMin", "Params")
@@ -22,7 +23,19 @@ def detection(tresh1, tresh2):
             peri = cv.arcLength(cnt, True)
             approx = cv.approxPolyDP(cnt, 0.02 * peri, True)
             x, y, w, h = cv.boundingRect(approx)
+            # add object to list
+            objects.append([x, y, w, h])
+    #draw detected objects
+    
+    for obj in range(len(objects)):
+        skip = 0
+        x, y, w, h = objects[obj]
+        for i in range(len(objects)):
+            if x > objects[i][0] and (x + w) < (objects[i][0] + objects[i][3]):
+                skip = 1
+        if skip == 0:
             cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 255, 0), 1)
+            detectedObjects.append([x, y, w, h])
 
 
     """
@@ -53,9 +66,9 @@ def empty(a):
 
 cv.namedWindow("Params")
 cv.resizeWindow("Params", 640, 240)
-cv.createTrackbar("thresh1", "Params", 255, 255, empty)
-cv.createTrackbar("thresh2", "Params", 500, 500, empty)
-cv.createTrackbar("AreaMin", "Params", 1000, 30000, empty)
+cv.createTrackbar("thresh1", "Params", 75, 255, empty)
+cv.createTrackbar("thresh2", "Params", 100, 500, empty)
+cv.createTrackbar("AreaMin", "Params", 311, 30000, empty)
 cv.createTrackbar("AreaMax", "Params", 5000, 30000, empty)
 
 webcam = cv.VideoCapture(0)
