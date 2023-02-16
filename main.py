@@ -28,6 +28,7 @@ def detection(tresh1, tresh2):
             objects.append([int(x), int(y), int(w), int(h)])
 
     # draw detected objects
+    margin = 5
     for obj in range(len(objects)):
         skip = 0
         x, y, w, h = objects[obj]
@@ -35,39 +36,44 @@ def detection(tresh1, tresh2):
             if x > objects[i][0] and (x + w) < (objects[i][0] + objects[i][2]) and y > objects[i][1] and (y + h) < (objects[i][1] + objects[i][3]):
                 skip = 1
         if skip == 0:
-            cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 255, 0), 1)
-            detectedObjects.append(frame[y:(y + h), x:(x + w)])
+            cv.rectangle(resultImg, (x - margin, y - margin), (x + w + margin, y + h + margin), (0, 255, 0), 1)
+            detectedObjects.append(frame[(y - margin):(y + h + margin), (x - margin):(x + w + margin)])
             coords.append([x,y])
 
     # identify detected objects
+    sift = cv.SIFT_create() # Initiate SIFT detector
     for obj in range(len(detectedObjects)):
-        for test in range(len(img_test)):
-            sift = cv.SIFT_create() # Initiate SIFT detector        
+        for test in range(len(img_test)):   
             # find the keypoints and descriptors with SIFT
-            kp1, des1 = sift.detectAndCompute(img_test[test],None)
-            kp2, des2 = sift.detectAndCompute(detectedObjects[obj],None)
-            # BFMatcher with default params
-            bf = cv.BFMatcher()
-            matches = bf.knnMatch(des1,des2,k=2)
+            kp1, des1 = sift.detectAndCompute(detectedObjects[obj],None)
+            kp2, des2 = sift.detectAndCompute(img_test[test],None)
+
+            FLANN_INDEX_KDTREE = 1
+            index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+            search_params = dict(checks = 50)
+            flann = cv.FlannBasedMatcher(index_params, search_params)
+            try:
+                matches = flann.knnMatch(des1,des2,k=2)
+            except:
+                pass
 
             good = []
             try:
                 for m,n in matches:
-                    if m.distance < 0.75*n.distance:
+                    if m.distance < 0.7*n.distance:
                         good.append([m])
             except:
                 print("not enough values to unpack (expected 2, got 1)")
-            if len(good) > cv.getTrackbarPos("level", "Params"):
+            if len(good) > cv.getTrackbarPos("matchCount", "Params"):
                 cv.putText(img = resultImg, text = testImageName[test],
                             org = (coords[obj][0], coords[obj][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                             fontScale = 1, color = (0, 255, 0), thickness = 1)
-
+                break
 
     # Show in a window
     cv.imshow("Source frame", frame)
     cv.imshow("Contour detection", drawing)
     cv.imshow("Object detection", resultImg)
-
 
 # contour deteciotn parameters
 def empty(a):
@@ -75,10 +81,10 @@ def empty(a):
 cv.namedWindow("Params")
 cv.resizeWindow("Params", 640, 240)
 cv.createTrackbar("thresh1", "Params", 190, 255, empty)
-cv.createTrackbar("thresh2", "Params", 110, 500, empty)
+cv.createTrackbar("thresh2", "Params", 210, 500, empty)
 cv.createTrackbar("AreaMin", "Params", 400, 30000, empty)
 cv.createTrackbar("AreaMax", "Params", 12000, 30000, empty)
-cv.createTrackbar("level", "Params", 10, 100, empty)
+cv.createTrackbar("matchCount", "Params", 10, 100, empty)
 
 # load  train images
 
@@ -87,7 +93,8 @@ img_darkGlass = cv.imread('ciemneSzklo.jpg',cv.IMREAD_GRAYSCALE)
 img_frame = cv.imread('obudowa.jpg',cv.IMREAD_GRAYSCALE)
 img_strip = cv.imread('pasek.jpg',cv.IMREAD_GRAYSCALE)
 img_clip = cv.imread('zacisk.jpg',cv.IMREAD_GRAYSCALE)
-img_test = [img_button, img_darkGlass, img_frame, img_strip]
+
+img_test = [img_button, img_darkGlass, img_frame, img_strip, img_clip]
 testImageName = ["button", "dark glass", "frame", "strip", "clip"]
 
 # start camera
@@ -100,22 +107,15 @@ while True:
     if ok == True:
         frameBlur = cv.GaussianBlur(frame, (7,7), 1)
         src_gray = cv.cvtColor(frameBlur, cv.COLOR_BGR2GRAY)
-        #src_gray = cv.blur(src_gray, (3,3))
 
         tresh1 = cv.getTrackbarPos("thresh1", "Params")
         tresh2 = cv.getTrackbarPos("thresh2", "Params")
         
         detection(tresh1, tresh2)
         key = cv.waitKey(1)
-        """
-        while button == False:
-            key2 = cv.waitKey(2)
-            if key2 == ord("w"):
-                break
-        """
+
         if key == ord("q"):
             break
-
 
 webcam.release()
 cv.destroyAllWindows
