@@ -41,61 +41,44 @@ def detection(tresh1, tresh2):
 
     # identify detected objects
     for obj in range(len(detectedObjects)):
-        # Initiate SIFT detector
-        sift = cv.SIFT_create()
-        # find the keypoints and descriptors with SIFT
-        kp1, des1 = sift.detectAndCompute(img_button,None)
-        kp2, des2 = sift.detectAndCompute(detectedObjects[obj],None)
-        # BFMatcher with default params
-        bf = cv.BFMatcher()
-        matches = bf.knnMatch(des1,des2,k=2)
-        # Apply ratio test
-        good = []
-        for m,n in matches:
-            if m.distance < 0.75*n.distance:
-                good.append([m])
-        if len(good) > 10:
-            cv.putText(img = resultImg, text = "button",
-                        org = (coords[obj][0], coords[obj][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
-                        fontScale = 1, color = (0, 255, 0), thickness = 1)
-    """
-    for i in range(len(contours)):
-        color = (255, 255, 255)
-        cv.drawContours(drawing, contours, i, color, 1, cv.LINE_8, hierarchy, 0)        
-        # Object detection
-        cnt = contours[i]
-        (x,y),radius = cv.minEnclosingCircle(cnt)
-        center = (int(x),int(y))
-        if(int(radius) > 1 and int(radius) < 80):
-            # Draw rectangle
-            startPoint = (int(center[0] - radius), int(center[1] - radius))
-            endPoint = (int(center[0] + radius)), int(center[1] + radius)
-            resultImg = cv.rectangle(resultImg, startPoint, endPoint, (0, 255, 0), 1)
-            cv.putText(img = resultImg, text = "",#f"{center[0]}, {center[1]}",
-                         org = (center[0], center[1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
-                        fontScale = 1, color = (0, 255, 0), thickness = 1)
-        """
+        for test in range(len(img_test)):
+            sift = cv.SIFT_create() # Initiate SIFT detector        
+            # find the keypoints and descriptors with SIFT
+            kp1, des1 = sift.detectAndCompute(img_test[test],None)
+            kp2, des2 = sift.detectAndCompute(detectedObjects[obj],None)
+            # BFMatcher with default params
+            bf = cv.BFMatcher()
+            matches = bf.knnMatch(des1,des2,k=2)
+
+            good = []
+            try:
+                for m,n in matches:
+                    if m.distance < 0.75*n.distance:
+                        good.append([m])
+            except:
+                print("not enough values to unpack (expected 2, got 1)")
+            if len(good) > cv.getTrackbarPos("level", "Params"):
+                cv.putText(img = resultImg, text = testImageName[test],
+                            org = (coords[obj][0], coords[obj][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
+                            fontScale = 1, color = (0, 255, 0), thickness = 1)
+
 
     # Show in a window
     cv.imshow("Source frame", frame)
     cv.imshow("Contour detection", drawing)
     cv.imshow("Object detection", resultImg)
-    try:
-        cv.imshow("object", detectedObjects[cv.getTrackbarPos("item", "Params")])
-    except:
-        cv.destroyWindow("object")
 
 
+# contour deteciotn parameters
 def empty(a):
     pass
-
 cv.namedWindow("Params")
 cv.resizeWindow("Params", 640, 240)
 cv.createTrackbar("thresh1", "Params", 190, 255, empty)
 cv.createTrackbar("thresh2", "Params", 110, 500, empty)
 cv.createTrackbar("AreaMin", "Params", 400, 30000, empty)
 cv.createTrackbar("AreaMax", "Params", 12000, 30000, empty)
-cv.createTrackbar("item", "Params", 1, 10, empty)
+cv.createTrackbar("level", "Params", 10, 100, empty)
 
 # load  train images
 
@@ -103,7 +86,11 @@ img_button = cv.imread('przycisk.jpg',cv.IMREAD_GRAYSCALE)
 img_darkGlass = cv.imread('ciemneSzklo.jpg',cv.IMREAD_GRAYSCALE)
 img_frame = cv.imread('obudowa.jpg',cv.IMREAD_GRAYSCALE)
 img_strip = cv.imread('pasek.jpg',cv.IMREAD_GRAYSCALE)
+img_clip = cv.imread('zacisk.jpg',cv.IMREAD_GRAYSCALE)
+img_test = [img_button, img_darkGlass, img_frame, img_strip]
+testImageName = ["button", "dark glass", "frame", "strip", "clip"]
 
+# start camera
 webcam = cv.VideoCapture(0)
 
 while True:
@@ -119,12 +106,13 @@ while True:
         tresh2 = cv.getTrackbarPos("thresh2", "Params")
         
         detection(tresh1, tresh2)
+        key = cv.waitKey(1)
+        """
         while button == False:
             key2 = cv.waitKey(2)
             if key2 == ord("w"):
                 break
-
-        key = cv.waitKey(1)
+        """
         if key == ord("q"):
             break
 
