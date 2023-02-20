@@ -28,8 +28,8 @@ def detection(tresh1, tresh2):
             objects.append([int(x), int(y), int(w), int(h)])
 
     # draw detected objects
-    margin = 5
     for obj in range(len(objects)):
+        margin = 5
         skip = 0
         x, y, w, h = objects[obj]
         for i in range(len(objects)):
@@ -37,8 +37,10 @@ def detection(tresh1, tresh2):
                 skip = 1
         if skip == 0:
             cv.rectangle(resultImg, (x - margin, y - margin), (x + w + margin, y + h + margin), (0, 255, 0), 1)
-            detectedObjects.append(frame[(y - margin):(y + h + margin), (x - margin):(x + w + margin)])
-            coords.append([x,y])
+        if (y - margin) < 0 or (x -margin) < 0:
+            margin = 0
+        detectedObjects.append(frame[(y - margin):(y + h + margin), (x - margin):(x + w + margin)])
+        coords.append([x,y])
 
     # identify detected objects
     sift = cv.SIFT_create() # Initiate SIFT detector
