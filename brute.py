@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 
 
 def brute():
-    img1 = cv.imread('przycisk.jpg',cv.IMREAD_GRAYSCALE) # queryImage
-    img2 = cv.imread('pasek.jpg',cv.IMREAD_GRAYSCALE) # trainImage
+    img1 = cv.imread('./Images/pattern/frame.jpg',cv.IMREAD_GRAYSCALE) # queryImage
+    img2 = cv.imread('./Images/pattern/frame.jpg',cv.IMREAD_GRAYSCALE) # trainImage
     # Initiate SIFT detector
     sift = cv.SIFT_create()
     # find the keypoints and descriptors with SIFT

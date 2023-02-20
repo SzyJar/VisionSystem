@@ -62,10 +62,11 @@ def detection(tresh1, tresh2):
                         good.append([m])
             except:
                 print("not enough values to unpack (expected 2, got 1)")
+                
             if len(good) > cv.getTrackbarPos("matchCount", "Params"):
-                cv.putText(img = resultImg, text = testImageName[test],
+                cv.putText(img = resultImg, text = f"{testImageName[test]} matches = {len(good)}",
                             org = (coords[obj][0], coords[obj][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
-                            fontScale = 1, color = (0, 255, 0), thickness = 1)
+                            fontScale = 0.5, color = (0, 255, 0), thickness = 1)
                 break
 
     # Show in a window
@@ -86,11 +87,11 @@ cv.createTrackbar("matchCount", "Params", 10, 100, empty)
 
 # load  train images
 
-img_button = cv.imread('przycisk.jpg',cv.IMREAD_GRAYSCALE)
-img_darkGlass = cv.imread('ciemneSzklo.jpg',cv.IMREAD_GRAYSCALE)
-img_frame = cv.imread('obudowa.jpg',cv.IMREAD_GRAYSCALE)
-img_strip = cv.imread('pasek.jpg',cv.IMREAD_GRAYSCALE)
-img_clip = cv.imread('zacisk.jpg',cv.IMREAD_GRAYSCALE)
+img_button = cv.imread('./Images/pattern/button.jpg',cv.IMREAD_GRAYSCALE)
+img_darkGlass = cv.imread('./Images/pattern/darkGlass.jpg',cv.IMREAD_GRAYSCALE)
+img_frame = cv.imread('./Images/pattern/frame.jpg',cv.IMREAD_GRAYSCALE)
+img_strip = cv.imread('./Images/pattern/strip.jpg',cv.IMREAD_GRAYSCALE)
+img_clip = cv.imread('./Images/pattern/clip.jpg',cv.IMREAD_GRAYSCALE)
 
 img_test = [img_button, img_darkGlass, img_frame, img_strip, img_clip]
 testImageName = ["button", "dark glass", "frame", "strip", "clip"]
