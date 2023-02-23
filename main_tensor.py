@@ -10,7 +10,7 @@ import numpy as np
 import cv2 as cv
 
 
-model = tf.keras.models.load_model('saved_model/90_percent')
+model = tf.keras.models.load_model('saved_model/97_percent')
 model.summary()
 
 def detection(tresh1, tresh2):
