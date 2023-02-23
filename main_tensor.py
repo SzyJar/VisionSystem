@@ -13,6 +13,7 @@ import cv2 as cv
 model = tf.keras.models.load_model('saved_model/97_percent')
 model.summary()
 
+
 def detection(tresh1, tresh2):
     resultImg = (frame).copy()
     # Detect edges using Canny
@@ -51,19 +52,22 @@ def detection(tresh1, tresh2):
             detectedObjects.append(frame[(y):(y + h), (x):(x + w)])
             detectedObjects[-1] = cv.resize(detectedObjects[-1], (150,150))
             image_np = np.array(detectedObjects[-1])
-            input_tensor.append(tf.convert_to_tensor(np.expand_dims(image_np, 0), dtype=tf.float32))
-            coords.append([x,y])     
+            input_tensor.append(np.expand_dims(image_np, axis=0))
+            coords.append([x,y])
+    cv.imshow("Contour 231", detectedObjects[-1])    
 
-    # identify detected objects  
+    # identify detected objects
+
     probability_model = tf.keras.Sequential([model, 
                                             tf.keras.layers.Softmax()])
+    
     predictions = []
     for i in range(len(input_tensor)):
         predictions.append(probability_model.predict(input_tensor[i]))
 
     predictionPercent = []
     predictionLabel = []
-    name = ["button", "clip", "dark glass", "frame", "light glass", "rectangle", "strip"]
+    name = ["button", "clip", "dark glass", "frame", "strip"]
     for i in range(len(predictions)):
         value = 0
         category = 0
@@ -78,7 +82,6 @@ def detection(tresh1, tresh2):
                             fontScale = 0.5, color = (0, 255, 0), thickness = 1)
 
     # Show in a window
-    cv.imshow("Source frame", frame)
     cv.imshow("Contour detection", drawing)
     cv.imshow("Object detection", resultImg)
 
