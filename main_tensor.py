@@ -1,16 +1,13 @@
 import tensorflow as tf
 
-import scipy
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing import image
 
 import os
 import numpy as np
 import cv2 as cv
 
 
-model = tf.keras.models.load_model('saved_model/97_percent')
+model = tf.keras.models.load_model('saved_model/98_percent')
 model.summary()
 
 
@@ -39,7 +36,7 @@ def detection(tresh1, tresh2):
             # add object to list
             objects.append([int(x), int(y), int(w), int(h)])
 
-    input_tensor = []
+    input_image = []
     # draw detected objects
     for obj in range(len(objects)):
         skip = 0
@@ -51,23 +48,24 @@ def detection(tresh1, tresh2):
             cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 255, 0), 1)
             detectedObjects.append(frame[(y):(y + h), (x):(x + w)])
             detectedObjects[-1] = cv.resize(detectedObjects[-1], (150,150))
-            image_np = np.array(detectedObjects[-1])
-            input_tensor.append(np.expand_dims(image_np, axis=0))
+            input_image.append(image.img_to_array(detectedObjects[-1]))
+            input_image[-1] = np.expand_dims(input_image[-1], axis = 0)
             coords.append([x,y])
-    cv.imshow("Contour 231", detectedObjects[-1])    
+    if(len(detectedObjects)>0):
+        cv.imshow("Contour 231", detectedObjects[-1])    
 
     # identify detected objects
 
     probability_model = tf.keras.Sequential([model, 
-                                            tf.keras.layers.Softmax()])
+                                            tf.keras.layers.Softmax()])                          
     
     predictions = []
-    for i in range(len(input_tensor)):
-        predictions.append(probability_model.predict(input_tensor[i]))
+    for i in range(len(input_image)):
+        predictions.append(probability_model.predict(input_image[i]))
 
     predictionPercent = []
     predictionLabel = []
-    name = ["button", "clip", "dark glass", "frame", "strip"]
+    name = ["clip", "dark glass", "frame", "strip", "button"]
     for i in range(len(predictions)):
         value = 0
         category = 0
@@ -77,7 +75,7 @@ def detection(tresh1, tresh2):
                 category = j
         predictionPercent.append(value)
         predictionLabel.append(name[category])
-        cv.putText(img = resultImg, text = f"{predictionLabel[i]} {int(predictionPercent[i]*100)}%",
+        cv.putText(img = resultImg, text = f"{predictionLabel[i]} {'%.3f'%(predictionPercent[i])}",
                             org = (coords[i][0], coords[i][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                             fontScale = 0.5, color = (0, 255, 0), thickness = 1)
 
