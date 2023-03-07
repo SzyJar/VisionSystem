@@ -7,7 +7,7 @@ import numpy as np
 import cv2 as cv
 
 
-model = tf.keras.models.load_model('saved_model/92_percent_dark')
+model = tf.keras.models.load_model('saved_model/test.h5')
 model.summary()
 
 
@@ -49,7 +49,7 @@ def detection(tresh1, tresh2):
             cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 255, 0), 1)
             detectedObjects.append(frame[(y):(y + h), (x):(x + w)])
             detectedObjects[-1] = cv.resize(detectedObjects[-1], (150,150))
-            input_image.append(image.img_to_array(detectedObjects[-1]))
+            input_image.append(image.img_to_array(detectedObjects[-1])) #tu cos nie tak
             input_image[-1] = np.expand_dims(input_image[-1], axis = 0)
             coords.append([x,y])
     if(len(detectedObjects)>0):
@@ -66,7 +66,7 @@ def detection(tresh1, tresh2):
 
     predictionPercent = []
     predictionLabel = []
-    name = ["clip", "dark glass", "frame", "strip", "button"]
+    name = ["clip", "dark glass", "frame", "strip"]
     for i in range(len(predictions)):
         value = 0
         category = 0
