@@ -7,7 +7,7 @@ import numpy as np
 import cv2 as cv
 
 
-model = tf.keras.models.load_model('saved_model/98_percent')
+model = tf.keras.models.load_model('saved_model/92_percent_dark')
 model.summary()
 
 
@@ -45,6 +45,7 @@ def detection(tresh1, tresh2):
             if x > objects[i][0] and (x + w) < (objects[i][0] + objects[i][2]) and y > objects[i][1] and (y + h) < (objects[i][1] + objects[i][3]):
                 skip = 1
         if skip == 0:
+            cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 0, 0), 2)
             cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 255, 0), 1)
             detectedObjects.append(frame[(y):(y + h), (x):(x + w)])
             detectedObjects[-1] = cv.resize(detectedObjects[-1], (150,150))
@@ -75,8 +76,11 @@ def detection(tresh1, tresh2):
                 category = j
         predictionPercent.append(value)
         predictionLabel.append(name[category])
-        cv.putText(img = resultImg, text = f"{predictionLabel[i]} {'%.3f'%(predictionPercent[i])}",
+        cv.putText(img = resultImg, text = f"{predictionLabel[i]}", #{'%.3f'%(predictionPercent[i])}",
                             org = (coords[i][0], coords[i][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
+                            fontScale = 0.5, color = (0, 0, 0), thickness = 2)
+        cv.putText(img = resultImg, text = f"{predictionLabel[i]}", #{'%.3f'%(predictionPercent[i])}",
+                            org = (coords[i][0] + 1, coords[i][1] + 1), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                             fontScale = 0.5, color = (0, 255, 0), thickness = 1)
 
     # Show in a window
