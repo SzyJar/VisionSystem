@@ -29,18 +29,16 @@ def detection(tresh1, tresh2):
 
     # draw detected objects
     for obj in range(len(objects)):
-        margin = 5
         skip = 0
         x, y, w, h = objects[obj]
         for i in range(len(objects)):
             if x > objects[i][0] and (x + w) < (objects[i][0] + objects[i][2]) and y > objects[i][1] and (y + h) < (objects[i][1] + objects[i][3]):
                 skip = 1
         if skip == 0:
-            cv.rectangle(resultImg, (x - margin, y - margin), (x + w + margin, y + h + margin), (0, 255, 0), 1)
-        if (y - margin) < 0 or (x -margin) < 0:
-            margin = 0
-        detectedObjects.append(frame[(y - margin):(y + h + margin), (x - margin):(x + w + margin)])
-        coords.append([x,y])
+            cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 0, 0), 2)
+            cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 255, 0), 1)
+            detectedObjects.append(frame[(y):(y + h), (x):(x + w)])
+            coords.append([x,y])
 
     # identify detected objects
     sift = cv.SIFT_create() # Initiate SIFT detector
@@ -89,14 +87,13 @@ cv.createTrackbar("matchCount", "Params", 10, 100, empty)
 
 # load  train images
 
-img_button = cv.imread('./Images/pattern/button.jpg',cv.IMREAD_GRAYSCALE)
 img_darkGlass = cv.imread('./Images/pattern/darkGlass.jpg',cv.IMREAD_GRAYSCALE)
 img_frame = cv.imread('./Images/pattern/frame.jpg',cv.IMREAD_GRAYSCALE)
 img_strip = cv.imread('./Images/pattern/strip.jpg',cv.IMREAD_GRAYSCALE)
 img_clip = cv.imread('./Images/pattern/clip.jpg',cv.IMREAD_GRAYSCALE)
 
-img_test = [img_button, img_darkGlass, img_frame, img_strip, img_clip]
-testImageName = ["button", "dark glass", "frame", "strip", "clip"]
+img_test = [img_darkGlass, img_frame, img_strip, img_clip]
+testImageName = ["dark glass", "frame", "strip", "clip"]
 
 # start camera
 webcam = cv.VideoCapture(0)

@@ -49,7 +49,7 @@ def detection(tresh1, tresh2):
             cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 255, 0), 1)
             detectedObjects.append(frame[(y):(y + h), (x):(x + w)])
             detectedObjects[-1] = cv.resize(detectedObjects[-1], (150,150))
-            input_image.append(image.img_to_array(detectedObjects[-1])) #tu cos nie tak
+            input_image.append(image.img_to_array(detectedObjects[-1]))
             input_image[-1] = np.expand_dims(input_image[-1], axis = 0)
             coords.append([x,y])
     if(len(detectedObjects)>0):
@@ -75,6 +75,7 @@ def detection(tresh1, tresh2):
                 value = predictions[i][0][j]
                 category = j
         predictionPercent.append(value)
+        
         predictionLabel.append(name[category])
         cv.putText(img = resultImg, text = f"{predictionLabel[i]}", #{'%.3f'%(predictionPercent[i])}",
                             org = (coords[i][0], coords[i][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
@@ -82,7 +83,7 @@ def detection(tresh1, tresh2):
         cv.putText(img = resultImg, text = f"{predictionLabel[i]}", #{'%.3f'%(predictionPercent[i])}",
                             org = (coords[i][0] + 1, coords[i][1] + 1), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                             fontScale = 0.5, color = (0, 255, 0), thickness = 1)
-
+    #print(predictions)
     # Show in a window
     cv.imshow("Contour detection", drawing)
     cv.imshow("Object detection", resultImg)
