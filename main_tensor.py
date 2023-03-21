@@ -1,8 +1,6 @@
 import tensorflow as tf
-
 from tensorflow.keras.preprocessing import image
 
-import os
 import numpy as np
 import cv2 as cv
 
@@ -56,7 +54,6 @@ def detection(tresh1, tresh2):
         cv.imshow("Contour 231", detectedObjects[-1])    
 
     # identify detected objects
-
     probability_model = tf.keras.Sequential([model, 
                                             tf.keras.layers.Softmax()])                          
     
@@ -83,14 +80,14 @@ def detection(tresh1, tresh2):
         cv.putText(img = resultImg, text = f"{predictionLabel[i]}", #{'%.3f'%(predictionPercent[i])}",
                             org = (coords[i][0] + 1, coords[i][1] + 1), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                             fontScale = 0.5, color = (0, 255, 0), thickness = 1)
-    #print(predictions)
+        
     # Show in a window
     cv.imshow("Contour detection", drawing)
     cv.imshow("Object detection", resultImg)
 
 
 # contour deteciotn parameters
-def empty(a):
+def empty(empty):
     pass
 cv.namedWindow("Params")
 cv.resizeWindow("Params", 640, 240)
