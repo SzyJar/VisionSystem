@@ -1,17 +1,15 @@
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 
-import tkinter as tk
-from PIL import Image
-from PIL import ImageTk
-
 import numpy as np
 import cv2 as cv
 
 
-model = tf.keras.models.load_model('saved_model/test.h5')
-model.summary()
 
+model = tf.keras.models.load_model('saved_model/test.h5')
+items = ["clip", "dark glass", "frame", "strip"]
+desiredCoords = []
+model.summary()
 
 def detection(tresh1, tresh2):
     resultImg = (frame).copy()
@@ -28,8 +26,8 @@ def detection(tresh1, tresh2):
     coords = []
     for cnt in contours:
         area = cv.contourArea(cnt)
-        areaMin = cv.getTrackbarPos("AreaMin", "Params")
-        areaMax = cv.getTrackbarPos("AreaMax", "Params")
+        areaMin = cv.getTrackbarPos("AreaMin", "VisionSystem")
+        areaMax = cv.getTrackbarPos("AreaMax", "VisionSystem")
         if area > areaMin and area < areaMax:
             cv.drawContours(drawing, cnt, -1, (255, 255, 2550), 1)
             peri = cv.arcLength(cnt, True)
@@ -38,8 +36,8 @@ def detection(tresh1, tresh2):
             # add object to list
             objects.append([int(x), int(y), int(w), int(h)])
 
+    # get coords of detected objects
     input_image = []
-    # draw detected objects
     for obj in range(len(objects)):
         skip = 0
         x, y, w, h = objects[obj]
@@ -47,27 +45,33 @@ def detection(tresh1, tresh2):
             if x > objects[i][0] and (x + w) < (objects[i][0] + objects[i][2]) and y > objects[i][1] and (y + h) < (objects[i][1] + objects[i][3]):
                 skip = 1
         if skip == 0:
-            cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 0, 0), 2)
-            cv.rectangle(resultImg, (x, y), (x + w, y + h), (0, 255, 0), 1)
             detectedObjects.append(frame[(y):(y + h), (x):(x + w)])
             detectedObjects[-1] = cv.resize(detectedObjects[-1], (150,150))
             input_image.append(image.img_to_array(detectedObjects[-1]))
             input_image[-1] = np.expand_dims(input_image[-1], axis = 0)
-            coords.append([x,y])
+            coords.append([x,y,w,h])
+
+    """
+    #show one of detected objects
     if(len(detectedObjects)>0):
         cv.imshow("Contour 231", detectedObjects[-1])    
+    """
+
+    # text color and position margin
+    goodColor = (0, 255, 0)
+    badColor = (50, 50, 255)
+    margin = 10
+    desiredCoord = [250, 250]
 
     # identify detected objects
     probability_model = tf.keras.Sequential([model, 
                                             tf.keras.layers.Softmax()])                          
-    
     predictions = []
     for i in range(len(input_image)):
         predictions.append(probability_model.predict(input_image[i]))
-
     predictionPercent = []
     predictionLabel = []
-    name = ["clip", "dark glass", "frame", "strip"]
+    name = items
     for i in range(len(predictions)):
         value = 0
         category = 0
@@ -75,30 +79,49 @@ def detection(tresh1, tresh2):
             if predictions[i][0][j] > value:
                 value = predictions[i][0][j]
                 category = j
-        predictionPercent.append(value)
-        
+        predictionPercent.append(value) 
         predictionLabel.append(name[category])
+
+        # check if position is correct 
+        if(coords[i][0] > desiredCoord[0] - margin and coords[i][1] > desiredCoord[1] - margin and
+            coords[i][0] < desiredCoord[0] + margin and coords[i][1] < desiredCoord[1] + margin):
+            textColor = goodColor
+        else:
+            textColor = badColor
+        cv.rectangle(resultImg, (coords[i][0], coords[i][1]),
+                    (coords[i][0] + coords[i][2], coords[i][1] + coords[i][3]), (0, 0, 0), 2)
+        cv.rectangle(resultImg, (coords[i][0], coords[i][1]),
+                    (coords[i][0] + coords[i][2], coords[i][1] + coords[i][3]), textColor, 1)
+
+        # put name
         cv.putText(img = resultImg, text = f"{predictionLabel[i]}", #{'%.3f'%(predictionPercent[i])}",
                             org = (coords[i][0], coords[i][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                             fontScale = 0.5, color = (0, 0, 0), thickness = 2)
         cv.putText(img = resultImg, text = f"{predictionLabel[i]}", #{'%.3f'%(predictionPercent[i])}",
                             org = (coords[i][0] + 1, coords[i][1] + 1), fontFace = cv.FONT_HERSHEY_TRIPLEX,
-                            fontScale = 0.5, color = (0, 255, 0), thickness = 1)
-        
+                            fontScale = 0.5, color = textColor, thickness = 1)
+        # put coords
+        cv.putText(img = resultImg, text = f"{(coords[i][0], coords[i][1])}",
+                            org = (coords[i][0], coords[i][1] + 20), fontFace = cv.FONT_HERSHEY_TRIPLEX,
+                            fontScale = 0.5, color = (0, 0, 0), thickness = 2)
+        cv.putText(img = resultImg, text = f"{(coords[i][0], coords[i][1])}",
+                            org = (coords[i][0] + 1, coords[i][1] + 21), fontFace = cv.FONT_HERSHEY_TRIPLEX,
+                            fontScale = 0.5, color = textColor, thickness = 1)
+
     # Show in a window
-    cv.imshow("Contour detection", drawing)
-    cv.imshow("Object detection", resultImg)
+    windowContest = np.concatenate((drawing, resultImg), axis=1)
+    cv.imshow("VisionSystem", windowContest)
 
 
 # contour deteciotn parameters
 def empty(empty):
     pass
-cv.namedWindow("Params")
-cv.resizeWindow("Params", 640, 240)
-cv.createTrackbar("thresh1", "Params", 80, 255, empty)
-cv.createTrackbar("thresh2", "Params", 230, 500, empty)
-cv.createTrackbar("AreaMin", "Params", 400, 30000, empty)
-cv.createTrackbar("AreaMax", "Params", 12000, 30000, empty)
+cv.namedWindow("VisionSystem")
+cv.resizeWindow("VisionSystem", 1200, 500)
+cv.createTrackbar("Thresh_1", "VisionSystem", 80, 255, empty)
+cv.createTrackbar("Thresh_2", "VisionSystem", 230, 500, empty)
+cv.createTrackbar("AreaMin", "VisionSystem", 400, 30000, empty)
+cv.createTrackbar("AreaMax", "VisionSystem", 12000, 30000, empty)
 
 # start camera
 webcam = cv.VideoCapture(0)
@@ -111,14 +134,15 @@ while True:
         frameBlur = cv.GaussianBlur(frame, (7,7), 1)
         src_gray = cv.cvtColor(frameBlur, cv.COLOR_BGR2GRAY)
 
-        tresh1 = cv.getTrackbarPos("thresh1", "Params")
-        tresh2 = cv.getTrackbarPos("thresh2", "Params")
+        tresh1 = cv.getTrackbarPos("Thresh_1", "VisionSystem")
+        tresh2 = cv.getTrackbarPos("Thresh_2", "VisionSystem")
         
         detection(tresh1, tresh2)
 
         key = cv.waitKey(1)
         if key == ord("q"):
             break
+        
 
 webcam.release()
 cv.destroyAllWindows
