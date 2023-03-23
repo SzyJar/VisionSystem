@@ -1,6 +1,10 @@
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 
+import tkinter as tk
+from PIL import Image
+from PIL import ImageTk
+
 import numpy as np
 import cv2 as cv
 
