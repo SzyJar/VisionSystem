@@ -8,7 +8,7 @@ import cv2 as cv
 model_path = "saved_model/test.h5"
 model = tf.keras.models.load_model(model_path)
 items = ["clip", "dark glass", "frame", "strip"]
-desiredCoords = [[250,250], [400,200], [50,150], [470,400]]
+desiredCoords = [[0,0], [0,0], [0,0], [0,0]]
 model.summary()
 
 class VisionSystem():
@@ -127,23 +127,22 @@ class VisionSystem():
                                 fontScale = 0.5, color = (0, 255, 255), thickness = 1)
 
         # Show in a window
-        windowContest = np.concatenate((drawing, resultImg), axis=1)
-        cv.imshow(windowName, windowContest)
-
-        # set default coords
-        #if (event == cv2.EVENT_LBUTTONDOWN):
+        windowContents = np.concatenate((drawing, resultImg), axis=1)
+        infoText = np.zeros((60, len(windowContents[0]), 3), np.uint8)
+        infoContents = "Click on the detected item to calibrate its position"
+        cv.putText(img = infoText, text = infoContents, org = (10, 40), fontFace = cv.FONT_HERSHEY_TRIPLEX,
+                                fontScale = 0.8, color = (255, 255, 255), thickness = 1)
+        windowContents = np.concatenate((windowContents, infoText), axis=0)
+        cv.imshow(windowName, windowContents)
 
     # edit desired item coords
     def on_mouse(self, a, x, y, press, empty):
         x = x - 640
         if (press == 1):
-            print(self.itemCat)
-            print(self.itemCoord)
             for i in range(len(self.itemCat)):
                 if (x > self.itemCoord[i][0] and x < self.itemCoord[i][0] + self.itemCoord[i][2] and
                     y > self.itemCoord[i][1] and y < self.itemCoord[i][1] + self.itemCoord[i][3]):
                     desiredCoords[self.itemCat[i]] = [self.itemCoord[i][0], self.itemCoord[i][1]]
-        print(x,y,press)
 
 # contour deteciotn parameters
 def empty(empty):
