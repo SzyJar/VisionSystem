@@ -101,7 +101,7 @@ class VisionSystem():
                                                 tf.keras.layers.Softmax()])                          
         predictions = []
         for i in range(len(input_image)):
-            predictions.append(probability_model.predict(input_image[i], verbose = 0))
+            predictions.append(probability_model.predict(input_image[i], verbose = 1))
         predictionPercent = []
         predictionLabel = []
         name = items
