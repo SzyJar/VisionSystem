@@ -156,3 +156,4 @@ cython_debug/
 /saved_model
 ~$*
 *.docx
+*.zip
