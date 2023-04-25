@@ -43,6 +43,8 @@ def detection(tresh1, tresh2):
     # identify detected objects
     sift = cv.SIFT_create() # Initiate SIFT detector
     for obj in range(len(detectedObjects)):
+        detected = [] # empty list for detected object information
+        text = ''
         for test in range(len(img_test)):   
             # find the keypoints and descriptors with SIFT
             kp1, des1 = sift.detectAndCompute(detectedObjects[obj],None)
@@ -61,13 +63,20 @@ def detection(tresh1, tresh2):
                     if m.distance < 0.7*n.distance:
                         good.append([m])
             except:
-                print("not enough values to unpack (expected 2, got 1)")
+                print("not enough values to unpack (expected 2)")
                 
-            if len(good) > cv.getTrackbarPos("matchCount", "Params"):
-                cv.putText(img = resultImg, text = f"{testImageName[test]} matches = {len(good)}",
-                            org = (coords[obj][0], coords[obj][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
-                            fontScale = 0.5, color = (0, 255, 0), thickness = 1)
-                break
+            detected.append([testImageName[test], len(good)])
+
+        j = 0
+        for i in range(len(detected)):
+            if(detected[i][1] > j and detected[i][1] >= cv.getTrackbarPos("matchCount", "Params")):
+                j = detected[i][1]
+                text = f"{detected[i][0]} matches = {detected[i][1]}"
+
+        cv.putText(img = resultImg, text = text,
+                    org = (coords[obj][0], coords[obj][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
+                    fontScale = 0.5, color = (0, 255, 0), thickness = 1)
+                
 
     # Show in a window
     cv.imshow("Source frame", frame)

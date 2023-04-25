@@ -1,11 +1,10 @@
-import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
 
 
 def brute():
-    img1 = cv.imread('./Images/pattern/frame.jpg',cv.IMREAD_GRAYSCALE) # queryImage
-    img2 = cv.imread('./Images/pattern/frame.jpg',cv.IMREAD_GRAYSCALE) # trainImage
+    img1 = cv.imread('./Images/pattern/strip.jpg',cv.IMREAD_GRAYSCALE) # queryImage
+    img2 = cv.imread('./Images/pattern/strip_rot.jpg',cv.IMREAD_GRAYSCALE) # trainImage
     # Initiate SIFT detector
     sift = cv.SIFT_create()
     # find the keypoints and descriptors with SIFT
