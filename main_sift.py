@@ -24,10 +24,10 @@ def detection(tresh1, tresh2):
             peri = cv.arcLength(cnt, True)
             approx = cv.approxPolyDP(cnt, 0.02 * peri, True)
             x, y, w, h = cv.boundingRect(approx)
-            # add object to list
+            # Add object to list
             objects.append([int(x), int(y), int(w), int(h)])
 
-    # draw detected objects
+    # Draw detected objects
     for obj in range(len(objects)):
         skip = 0
         x, y, w, h = objects[obj]
@@ -40,13 +40,13 @@ def detection(tresh1, tresh2):
             detectedObjects.append(frame[(y):(y + h), (x):(x + w)])
             coords.append([x,y])
 
-    # identify detected objects
+    # Identify detected objects
     sift = cv.SIFT_create() # Initiate SIFT detector
     for obj in range(len(detectedObjects)):
-        detected = [] # empty list for detected object information
+        detected = [] # Empty list for detected object information
         text = ''
         for test in range(len(img_test)):   
-            # find the keypoints and descriptors with SIFT
+            # Find the keypoints and descriptors with SIFT
             kp1, des1 = sift.detectAndCompute(detectedObjects[obj],None)
             kp2, des2 = sift.detectAndCompute(img_test[test],None)
 
@@ -83,7 +83,7 @@ def detection(tresh1, tresh2):
     cv.imshow("Contour detection", drawing)
     cv.imshow("Object detection", resultImg)
 
-# contour deteciotn parameters
+# Contour deteciotn parameters
 def empty(a):
     pass
 cv.namedWindow("Params")
@@ -94,7 +94,7 @@ cv.createTrackbar("AreaMin", "Params", 400, 30000, empty)
 cv.createTrackbar("AreaMax", "Params", 12000, 30000, empty)
 cv.createTrackbar("matchCount", "Params", 10, 100, empty)
 
-# load  train images
+# Load  train images
 
 img_darkGlass = cv.imread('./Images/pattern/darkGlass.jpg',cv.IMREAD_GRAYSCALE)
 img_frame = cv.imread('./Images/pattern/frame.jpg',cv.IMREAD_GRAYSCALE)
@@ -104,7 +104,7 @@ img_clip = cv.imread('./Images/pattern/clip.jpg',cv.IMREAD_GRAYSCALE)
 img_test = [img_darkGlass, img_frame, img_strip, img_clip]
 testImageName = ["dark glass", "frame", "strip", "clip"]
 
-# start camera
+# Start camera
 webcam = cv.VideoCapture(0)
 
 while True:

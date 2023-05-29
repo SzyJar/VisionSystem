@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 
 
 def brute():
-    img1 = cv.imread('./Images/pattern/strip.jpg',cv.IMREAD_GRAYSCALE) # queryImage
-    img2 = cv.imread('./Images/pattern/strip_rot.jpg',cv.IMREAD_GRAYSCALE) # trainImage
+    img1 = cv.imread('./Images/pattern/strip.jpg',cv.IMREAD_GRAYSCALE) # QueryImage
+    img2 = cv.imread('./Images/pattern/strip_rot.jpg',cv.IMREAD_GRAYSCALE) # TrainImage
     # Initiate SIFT detector
     sift = cv.SIFT_create()
-    # find the keypoints and descriptors with SIFT
+    # Find the keypoints and descriptors with SIFT
     kp1, des1 = sift.detectAndCompute(img1,None)
     kp2, des2 = sift.detectAndCompute(img2,None)
     # BFMatcher with default params

@@ -43,9 +43,9 @@ class VisionSystem():
                 peri = cv.arcLength(cnt, True)
                 approx = cv.approxPolyDP(cnt, 0.02 * peri, True)
                 x, y, w, h = cv.boundingRect(approx)
-                # add object to list
+                # Add object to list
                 objects.append([int(x), int(y), int(w), int(h)])
-                #get rotation
+                # Get rotation
                 ellipse = cv.fitEllipse(contours[i])
                 (xc,yc),(d1,d2),angle = ellipse
                 rmajor = max(d1,d2)/2
@@ -60,7 +60,7 @@ class VisionSystem():
                 cv.line(drawing, (int(x1),int(y1)), (int(x2),int(y2)), (0, 255, 0), 1)
                 angles.append(angle)
             i += 1
-        # get coords of detected objects
+        # Get coords of detected objects
         input_image = []
         for obj in range(len(objects)):
             skip = 0
@@ -76,7 +76,7 @@ class VisionSystem():
                 coords.append([x,y,w,h])
                 self.objectAngle.append(angles[obj])
 
-        # text color and position margin
+        # Text color and position margin
         goodColor = (0, 255, 0)
         badColor = (50, 50, 255)
         margin = 20
@@ -84,7 +84,7 @@ class VisionSystem():
 
         self.itemCat = []
         self.itemCoord = []
-        # identify detected objects
+        # Identify detected objects
         probability_model = tf.keras.Sequential([model, 
                                                 tf.keras.layers.Softmax()])                          
         predictions = []
@@ -103,11 +103,11 @@ class VisionSystem():
             predictionPercent.append(value) 
             predictionLabel.append(name[category])
 
-            # push prediction and coords outside this method
+            # Push prediction and coords outside this method
             self.itemCat.append(category) 
             self.itemCoord.append(coords[i])
 
-            # check if position is correct 
+            # Check if position is correct 
             if(coords[i][0] > desiredCoords[category][0] - margin and coords[i][1] > desiredCoords[category][1] - margin and
                 coords[i][0] < desiredCoords[category][0] + margin and coords[i][1] < desiredCoords[category][1] + margin and
                 self.objectAngle[i] + angleMargin > desiredCoords[category][2] and self.objectAngle[i] - angleMargin < desiredCoords[category][2]):
@@ -118,21 +118,21 @@ class VisionSystem():
                         (coords[i][0] + coords[i][2], coords[i][1] + coords[i][3]), (0, 0, 0), 2)
             cv.rectangle(resultImg, (coords[i][0], coords[i][1]),
                         (coords[i][0] + coords[i][2], coords[i][1] + coords[i][3]), textColor, 1)
-            # put name
-            cv.putText(img = resultImg, text = f"{predictionLabel[i]}", #{'%.3f'%(predictionPercent[i])}",
+            # Draw name
+            cv.putText(img = resultImg, text = f"{predictionLabel[i]}",
                                 org = (coords[i][0], coords[i][1]), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                                 fontScale = 0.5, color = (0, 0, 0), thickness = 2)
-            cv.putText(img = resultImg, text = f"{predictionLabel[i]}", #{'%.3f'%(predictionPercent[i])}",
+            cv.putText(img = resultImg, text = f"{predictionLabel[i]}",
                                 org = (coords[i][0] + 1, coords[i][1] + 1), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                                 fontScale = 0.5, color = textColor, thickness = 1)
-            # put coords
+            # Draw coords
             cv.putText(img = resultImg, text = f"{(coords[i][0], coords[i][1])}, {'%.1f'%(self.objectAngle[i])}",
                                 org = (coords[i][0], coords[i][1] + 20), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                                 fontScale = 0.5, color = (0, 0, 0), thickness = 2)
             cv.putText(img = resultImg, text = f"{(coords[i][0], coords[i][1])}, {'%.1f'%(self.objectAngle[i])}",
                                 org = (coords[i][0] + 1, coords[i][1] + 21), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                                 fontScale = 0.5, color = textColor, thickness = 1)
-            # put desired coords
+            # Draw desired coords
             cv.putText(img = resultImg, text = f"{(desiredCoords[category][0], desiredCoords[category][1])}, {'%.1f'%(desiredCoords[category][2])}",
                                 org = (coords[i][0], coords[i][1] + 40), fontFace = cv.FONT_HERSHEY_TRIPLEX,
                                 fontScale = 0.5, color = (0, 0, 0), thickness = 2)
@@ -148,7 +148,7 @@ class VisionSystem():
         windowContents = np.concatenate((windowContents, infoText), axis=0)
         cv.imshow(windowName, windowContents)
 
-    # edit desired item coords
+    # Edit desired item coords
     def on_mouse(self, a, x, y, press, empty):
         x = x - 640
         if (press == 1):
@@ -159,7 +159,7 @@ class VisionSystem():
                     self.infoContents = f"Item: '{items[self.itemCat[i]]}' new position: {[self.itemCoord[i][0], self.itemCoord[i][1]]}, {'%.1f'%self.objectAngle[i]} deg"
 
 
-# contour deteciotn parameters
+# Contour deteciotn parameters
 def empty(empty):
     pass
 
@@ -175,7 +175,7 @@ visionSystem = VisionSystem()
 
 cv.setMouseCallback(windowName, visionSystem.on_mouse)
 
-# start camera
+# Start camera
 webcam = cv.VideoCapture(0)
 
 while True:
