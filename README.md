@@ -2,9 +2,9 @@
 
 Using libraries such as OpenCV, Keras and Tensorflow its possible to detect and recognize various objects.
 
-Model used in application was trained on objcets such as dark glass, white frame, strip, and clip.
+Model used in application was trained on objects such as dark glass, white frame, strip, and clip.
 
-Using the OpenCV library, the edge, element position and element oreientation are extracted.<br>Based on this, a portion of frame captured by cam is cropped and presented to neutral network for object recognition.
+Using the OpenCV library, the edge, element position and element orientation are extracted.<br>Based on this, a portion of frame captured by cam is cropped and presented to neutral network for object recognition.
 
 ![Object detection](https://github.com/SzyJar/VisionSystem/assets/107247457/72449434-a512-426e-bf70-fb7dba7b976c)
 
